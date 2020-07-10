@@ -14,16 +14,9 @@
      <!-- Respetar el el formato HTML del formulario para obtener datos de tarjetas de manera segura -->
      <form action="procesar_pago.php" method="post" id="pay" name="pay">
          <fieldset>
-             <p>
-                 <label>Metodo de Pago:</label>
-                 <select id="cardId" name="cardId" data-checkout='cardId'>
-                     <?php foreach ($cards["response"] as $card) { ?>
-                         <option value="<?php echo $card["id"]; ?>" first_six_digits="<?php echo $card["first_six_digits"]; ?>" security_code_length="<?php echo $card["security_code"]["length"]; ?>">
-                             <?php echo $card["payment_method"]["name"]; ?> ended in <?php echo $card["last_four_digits"]; ?>
-                         </option>
-                     <?php } ?>
-                 </select>
-            </p>
+             <p id="mediosPago">
+
+             </p>
              <p>
                  <label for="description">Descripción</label>
                  <input type="text" name="description" id="description" value="Ítem seleccionado" />
@@ -31,6 +24,10 @@
              <p>
                  <label for="transaction_amount">Monto a pagar</label>
                  <input name="transaction_amount" id="transaction_amount" value="100" />
+             </p>
+             <p>
+                 <label for="email">Email</label>
+                 <input type="email" id="email" name="email" value="" />
              </p>
              <p>
                  <label for="cardNumber">Número de la tarjeta</label>
@@ -65,10 +62,7 @@
                  <label for="docNumber">Número de documento</label>
                  <input type="text" id="docNumber" data-checkout="docNumber" />
              </p>
-             <p>
-                 <label for="email">Email</label>
-                 <input type="email" id="email" name="email" value="test@test.com" />
-             </p>
+
              <input type="hidden" name="payment_method_id" id="payment_method_id" />
              <input type="submit" value="Pagar" />
          </fieldset>
@@ -78,10 +72,14 @@
  <!-- Importamos el SDK.js de Mercado Pago para la seguridad de los datos de tarjetas -->
  <script src="https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js"></script>
  <script>
+     getCards()
+
      // Enviamos la Public Key
      window.Mercadopago.setPublishableKey("TEST-c4c7b2fb-66a4-48ee-ba2e-e9e273a0bcb7");
      // Autocompleta el campo "Tipo de documento"
      window.Mercadopago.getIdentificationTypes();
+
+     document.getElementById('email').addEventListener('blur', getCards);
 
      // Inicio - Obtiene método de pago de la tarjeta
      document.getElementById('cardNumber').addEventListener('keyup', guessPaymentMethod);
@@ -172,6 +170,27 @@
              form.submit();
          }
      };
+
+     // Funcion Asincrona    
+     function getCards() {
+
+         let formData = new FormData();
+         formData.append('email', document.querySelector("#email").value)
+
+         // Peticion Fetch
+         fetch("tarjetas_recordadas.php", {
+                 // Pasamos el Metodo con el que queremos enviar los datos
+                 method: "POST",
+                 // Enviamos la informacion del FormData()
+                 body: formData
+             })
+             // Transformamos la respuesta en formato JSON
+             //  await Hasta que la peticion no obtenga una respuesta, no se ejecuta la siguiente linea de codigo
+             //  .then(response => response.json())
+             .then((text) => {
+                 console.log(text);
+             })
+     }
  </script>
 
  </html>

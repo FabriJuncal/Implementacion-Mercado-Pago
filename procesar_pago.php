@@ -33,8 +33,16 @@
     // Token Creado
     $token = filter_input(INPUT_POST, 'token', FILTER_DEFAULT);
 
+    // Se arma el filtro por correo electronico
+    $filters = array(
+        "email" => $email
+    );
+
+    // Buscamos al cliente por su correo electronico
+    $customer = MercadoPago\Customer::search($filters);
 
 
+    // SE REALIZA EL PAGO
     $payment = new MercadoPago\Payment();
     $payment->description = $description;  
     $payment->transaction_amount = $transaction_amount; 
@@ -47,15 +55,7 @@
 
     // Envía y verifica que el pago se efectue
     if($payment->save()){
-
-        // Se arma el filtro por correo electronico
-        $filters = array(
-            "email" => $email
-        );
-    
-        // Buscamos al cliente por su correo electronico
-        $customer = MercadoPago\Customer::search($filters);
-
+        
         if (isset($customer[0])) {// Si existe el cliente, tomamos el ID
 
             $customer_id = $customer[0]->id; // Guardamos el ID 
@@ -68,6 +68,9 @@
             $customer_id = $customer->id;           // Guardamos el ID 
 
         }
+
+        // $customer = MercadoPago\Customer::find_by_id($customer_id);
+        // $cards = $customer->cards;
 
         // Almacenamos los datos de la tarjeta y lo asignamos al cliente
         $card = new MercadoPago\Card();             // Instanciamos la clase de Tarjetas

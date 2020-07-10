@@ -55,7 +55,7 @@ curl -X POST \
 {
    "id":606922403,
    "nickname":"TETE8305635",
-   "password":"qatest2450",
+   "password":"qatest2450",                              // TIENE TARJETA
    "site_status":"active",
    "email":"test_user_76587032@testuser.com"
 }

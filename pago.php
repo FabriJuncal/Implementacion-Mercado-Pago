@@ -15,6 +15,16 @@
      <form action="procesar_pago.php" method="post" id="pay" name="pay">
          <fieldset>
              <p>
+                 <label>Metodo de Pago:</label>
+                 <select id="cardId" name="cardId" data-checkout='cardId'>
+                     <?php foreach ($cards["response"] as $card) { ?>
+                         <option value="<?php echo $card["id"]; ?>" first_six_digits="<?php echo $card["first_six_digits"]; ?>" security_code_length="<?php echo $card["security_code"]["length"]; ?>">
+                             <?php echo $card["payment_method"]["name"]; ?> ended in <?php echo $card["last_four_digits"]; ?>
+                         </option>
+                     <?php } ?>
+                 </select>
+            </p>
+             <p>
                  <label for="description">Descripción</label>
                  <input type="text" name="description" id="description" value="Ítem seleccionado" />
              </p>
@@ -24,23 +34,24 @@
              </p>
              <p>
                  <label for="cardNumber">Número de la tarjeta</label>
-                 <input type="text" id="cardNumber" data-checkout="cardNumber" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off />
+                 <input type="text" id="cardNumber" data-checkout="cardNumber" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="5031755734530604" />
+                 <div class="img-tarjeta"></div>
              </p>
              <p>
                  <label for="cardholderName">Nombre y apellido</label>
-                 <input type="text" id="cardholderName" data-checkout="cardholderName" />
+                 <input type="text" id="cardholderName" data-checkout="cardholderName" placeholder="APRO" />
              </p>
              <p>
                  <label for="cardExpirationMonth">Mes de vencimiento</label>
-                 <input type="text" id="cardExpirationMonth" data-checkout="cardExpirationMonth" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off />
+                 <input type="text" id="cardExpirationMonth" data-checkout="cardExpirationMonth" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="11" />
              </p>
              <p>
                  <label for="cardExpirationYear">Año de vencimiento</label>
-                 <input type="text" id="cardExpirationYear" data-checkout="cardExpirationYear" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off />
+                 <input type="text" id="cardExpirationYear" data-checkout="cardExpirationYear" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="25" />
              </p>
              <p>
                  <label for="securityCode">Código de seguridad</label>
-                 <input type="text" id="securityCode" data-checkout="securityCode" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off />
+                 <input type="text" id="securityCode" data-checkout="securityCode" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="123" />
              </p>
              <p>
                  <label for="installments">Cuotas</label>
@@ -68,7 +79,7 @@
  <script src="https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js"></script>
  <script>
      // Enviamos la Public Key
-     window.Mercadopago.setPublishableKey("TEST-401897db-7d88-47a1-b831-78375c61cf23");
+     window.Mercadopago.setPublishableKey("TEST-c4c7b2fb-66a4-48ee-ba2e-e9e273a0bcb7");
      // Autocompleta el campo "Tipo de documento"
      window.Mercadopago.getIdentificationTypes();
 
@@ -100,8 +111,12 @@
              let paymentMethodId = response[0].id;
              let element = document.getElementById('payment_method_id');
              element.value = paymentMethodId;
-             //Autocompleta el campo "Cuotas"
+             // Autocompleta el campo "Cuotas"
              getInstallments();
+
+             // Muestra la imagen de la tarjeta que se este ingresando
+             document.querySelector('.img-tarjeta').innerHTML = `<img src="${response[0].thumbnail}" alt="Imagen de tarjeta ${response[0].name}">`
+
          } else {
              alert(`payment method info error: ${response}`);
          }

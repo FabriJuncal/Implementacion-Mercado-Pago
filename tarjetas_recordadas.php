@@ -34,3 +34,4 @@ if (isset($customer[0])) { // Si existe el cliente, tomamos el ID
             <?=$cards[0]->payment_method->name?> termina en: <?=$cards[0]->last_four_digits?>
         </option>
 </select>
+<button id="newCard">Nueva Tarjeta +</button>

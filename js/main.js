@@ -9,6 +9,11 @@ function newCard(event) {
     document.querySelector("#tarjetasGuardadas").innerHTML = "";
     // Oculta la imagen de la tarjeta si no se tienen la cantidad de codigos de la tarjeta necesarias
     document.querySelector('.img-tarjeta').innerHTML = "";
+
+    document.querySelector("#codigoTarjeta").innerHTML =`<label for="cardNumber">Número de la tarjeta</label>
+                                                        <input type="text" id="cardNumber" data-checkout="cardNumber" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="5031755734530604" />
+                                                        <button id="viewListCard">Tarjetas Guardadas</button>`;
+
     // Eliminamos la clase que esta ocultando el campo "Número de la tarjeta"
     document.querySelector("#codigoTarjeta").classList.remove("d-none");
     // Agregamos funcion al evento "click" del botón "Nueva Tarjeta +"
@@ -17,6 +22,28 @@ function newCard(event) {
     document.getElementById('installments').innerHTML = "";
     document.getElementById('installments').innerHTML = '<select id="installments" class="form-control" name="installments">-- Cargar Nro de Tarjeta --</select>';
     
+    // Se carga las funciones de los Eventos:
+
+    document.getElementById('cardNumber').addEventListener('keyup', () => {
+
+            // Se toma los datos del campo "Número de la tarjeta"
+            let codCard = document.getElementById('cardNumber').value;
+            // Se envia el codigo de la tarjeta para obtener las cuotas en los que se puede realizar el pago
+            guessPaymentMethod(codCard);
+
+    }, false);
+
+    document.getElementById('cardNumber').addEventListener('change', () => {
+
+            // Se toma los datos del campo "Número de la tarjeta"
+            let codCard = document.getElementById('cardNumber').value;
+            // Se envia el codigo de la tarjeta para obtener las cuotas en los que se puede realizar el pago
+            guessPaymentMethod(codCard);
+
+    }, false);
+
+
+
 }
 
 
@@ -57,13 +84,14 @@ async function getCards(event = null ) {
             if (document.querySelector("#cardId option")) {
                 // Verificamos que el elemento "SELECT" del HTML contenga registros
                 if (document.querySelector("#cardId option").value) {
+                    console.log("IF");
                     // Se toma los datos del campo "Metodo de Pago"
                     let codCard = document.querySelector('#cardId > option').attributes[1].value;
                     // Se envia el codigo de la tarjeta para obtener las cuotas en los que se puede realizar el pago
                     guessPaymentMethod(codCard);
                     // En el caso de que exista registros en el "SELECT":
 
-                    // *Eliminamos la clase que esta ocultando el campo "Metodo de Pago"
+                    // *Mostramos el campo  "Metodo de Pago"
                     document.querySelector("#tarjetasGuardadas").classList.remove("d-none");
 
                     // * Agregamos funcion al evento "click" del botón "Nueva Tarjeta +"
@@ -72,14 +100,24 @@ async function getCards(event = null ) {
                     // *Ocultamos el campo "Número de la tarjeta"
                     document.querySelector("#codigoTarjeta").classList.add("d-none");
 
+                    // Eliminamos el campo "Número de la tarjeta"
+                    let campo_codigoTarjeta = document.querySelector("#codigoTarjeta");
+
+                    // Se eliminan todos los elementos hijos del nodo "#codigoTarjeta"
+                    while (campo_codigoTarjeta.firstChild) {
+                        campo_codigoTarjeta.removeChild(campo_codigoTarjeta.firstChild);
+                    }
                     
                 } else {
-                    // console.log("ENTRO EN ELSE")
+                    console.log("ELSE");
                     // En el caso que NO exista registros en el "SELECT":
                     
                     // *Ocultamos el campo "Metodo de Pago"
                     document.querySelector("#tarjetasGuardadas").classList.add("d-none");
 
+                    // * Eliminamos el campo "Metodo de Pago"
+                    document.querySelector("#tarjetasGuardadas").innerHTML = "";
+                    
                     // *Eliminamos la clase que esta ocultando el campo "Número de la tarjeta"
                     document.querySelector("#codigoTarjeta").classList.remove("d-none");
                     
@@ -87,7 +125,7 @@ async function getCards(event = null ) {
 
                     document.getElementById('cardNumber').addEventListener('keyup', ()=>{
                         // En el caso que NO exista registros en el "SELECT":
-                        if (!document.querySelector("#cardId option").value){
+                        if (!document.querySelector("#cardId option")){
 
                             // Se toma los datos del campo "Número de la tarjeta"
                             let codCard = document.getElementById('cardNumber').value;
@@ -99,7 +137,7 @@ async function getCards(event = null ) {
 
                     document.getElementById('cardNumber').addEventListener('change', () => {
                         // En el caso que NO exista registros en el "SELECT":
-                        if (!document.querySelector("#cardId option").value) {
+                        if (!document.querySelector("#cardId option")) {
 
                             // Se toma los datos del campo "Número de la tarjeta"
                             let codCard = document.getElementById('cardNumber').value;

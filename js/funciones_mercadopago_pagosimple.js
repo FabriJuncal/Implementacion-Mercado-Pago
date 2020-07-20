@@ -2,7 +2,7 @@
 // ===================================================================
 function guessPaymentMethod(setCardNumber = null) {
     if (setCardNumber != null){
-            let cardnumber = setCardNumber;
+        let cardnumber = setCardNumber;
 
         if (cardnumber.length >= 6) {
             let bin = cardnumber.substring(0, 6);
@@ -10,14 +10,8 @@ function guessPaymentMethod(setCardNumber = null) {
                 "bin": bin
             }, setPaymentMethod);
 
-        } else {
-            // Eliminamos la imagen de tipo de tarjeta y las cuotas de forma de pago que contiene
-            deletDataCard();
         }
 
-    } else {
-        // Eliminamos la imagen de tipo de tarjeta y las cuotas de forma de pago que contiene
-        deletDataCard();
     }
 
 };

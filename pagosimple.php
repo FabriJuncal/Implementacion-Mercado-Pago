@@ -31,13 +31,9 @@
                  <label for="email">Email</label>
                  <input type="email" id="email" name="email" value="" />
              </p>
-             <p id="tarjetasGuardadas" class="d-none">
-                 <!-- TARJETAS DEL CLIENTE GUARDADAS -->
-             </p>
              <p id="codigoTarjeta">
                  <label for="cardNumber">Número de la tarjeta</label>
                  <input type="text" id="cardNumber" data-checkout="cardNumber" onselectstart="return false" onpaste="return false" onCopy="return false" onCut="return false" onDrag="return false" onDrop="return false" autocomplete=off placeholder="5031755734530604" />
-                 <button id="viewListCard">Tarjetas Guardadas</button>
              </p>
              <p>
                  <div class="img-tarjeta"></div>
@@ -81,29 +77,87 @@
  </body>
  <!-- Importamos el SDK.js de Mercado Pago para la seguridad de los datos de tarjetas -->
  <script src="https://secure.mlstatic.com/sdk/javascript/v1/mercadopago.js"></script>
- <script src="js/funciones_mercadopago.js"></script>
- <script src="js/main.js"></script>
+ <!-- <script src="js/funciones_mercadopago_pagosimple.js"></script> -->
+ <!-- <script src="js/main.js"></script> -->
  <script>
-     getCards();
-
      // Enviamos la Public Key
      window.Mercadopago.setPublishableKey("TEST-cc78c749-dbb8-4450-b376-4d47d7932298");
      // Autocompleta el campo "Tipo de documento"
      window.Mercadopago.getIdentificationTypes();
 
-     // Muestra tarjetas del cliente al ingresa el correo electronico
-     document.getElementById('email').addEventListener('blur', getCards);
+     document.getElementById('cardNumber').addEventListener('keyup', guessPaymentMethod);
+     document.getElementById('cardNumber').addEventListener('change', guessPaymentMethod);
 
-     // Verificamos si existe el elemento HTML antes de asignarle una funcion a su evento
-     if (document.getElementById('viewListCard')) {
-         // Agregamos funcion al evento "click" del botón "Nueva Tarjeta +"
-         document.getElementById('viewListCard').addEventListener("click", getCards);
+     function guessPaymentMethod(event) {
+         let cardnumber = document.getElementById("cardNumber").value;
+
+         if (cardnumber.length >= 6) {
+             let bin = cardnumber.substring(0, 6);
+             window.Mercadopago.getPaymentMethod({
+                 "bin": bin
+             }, setPaymentMethod);
+         }
+     };
+
+     function setPaymentMethod(status, response) {
+         if (status == 200) {
+             let paymentMethodId = response[0].id;
+             let element = document.getElementById('payment_method_id');
+             element.value = paymentMethodId;
+             getInstallments();
+         } else {
+             alert(`payment method info error: ${response}`);
+         }
      }
 
-     // Crea el token de la tarjeta
-     // IMPORTANTE: El token tiene una validez de 7 días y solo se pueda usar una vez.
+     function getInstallments() {
+         window.Mercadopago.getInstallments({
+             "payment_method_id": document.getElementById('payment_method_id').value,
+             "amount": parseFloat(document.getElementById('transaction_amount').value)
+
+         }, function(status, response) {
+             if (status == 200) {
+                 document.getElementById('installments').options.length = 0;
+                 response[0].payer_costs.forEach(installment => {
+                     let opt = document.createElement('option');
+                     opt.text = installment.recommended_message;
+                     opt.value = installment.installments;
+                     document.getElementById('installments').appendChild(opt);
+                 });
+             } else {
+                 alert(`installments method info error: ${response}`);
+             }
+         });
+     }
+
      doSubmit = false;
      document.querySelector('#pay').addEventListener('submit', doPay);
+
+     function doPay(event) {
+         event.preventDefault();
+         if (!doSubmit) {
+             var $form = document.querySelector('#pay');
+
+             window.Mercadopago.createToken($form, sdkResponseHandler);
+
+             return false;
+         }
+     };
+
+     function sdkResponseHandler(status, response) {
+         if (status != 200 && status != 201) {
+             alert("verify filled data");
+         } else {
+             var form = document.querySelector('#pay');
+             var card = document.createElement('input');
+             card.setAttribute('name', 'token');
+             card.setAttribute('type', 'hidden');
+             card.setAttribute('value', response.id);
+             form.appendChild(card);
+             doSubmit = true;
+             form.submit();
+         }
+     };
  </script>
 
  </html>

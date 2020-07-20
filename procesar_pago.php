@@ -16,7 +16,7 @@
     require_once 'vendor/autoload.php';
 
     // Enviamos el Access Token
-    MercadoPago\SDK::setAccessToken("TEST-2508592269752410-070600-a04d2d96ec9836e08c1c96cbb1d27ef4-604099663");
+    MercadoPago\SDK::setAccessToken("TEST-3566230077754908-071823-49c8f8f8a6317745a07c283bf999e56a-611853972");
 
     // FILTRA Y OBTIENE LOS DATOS POR POST
 
@@ -41,17 +41,32 @@
     // Buscamos al cliente por su correo electronico
     $customer = MercadoPago\Customer::search($filters);
 
-
     // SE REALIZA EL PAGO
     $payment = new MercadoPago\Payment();
     $payment->description = $description;  
     $payment->transaction_amount = $transaction_amount; 
     $payment->installments = $installments; 
-    $payment->payer = array(
-        "email" => $email
-    );
+
+    // if($customer == null){
+    //     // die("CORREO CLIENTE: ". $email);
+        $payment->payer = array(
+            "email" => $email
+        );
+    // }else{
+    //     // die("ID CLIENTE: ". $customer[0]->id);
+    //     $payment->payer = array(
+    //         "type" => "customer",
+    //         "id" => $customer[0]->id
+    //     );
+
+    // }
+
     $payment->payment_method_id = $payment_method_id;  
-    $payment->token = $token; 
+    $payment->token = $token;
+    // $payment->save();
+
+    // echo "<pre>";
+    // die(print_r($payment->error));
 
     // Envía y verifica que el pago se efectue
     if($payment->save()){
@@ -80,9 +95,12 @@
 
         echo "<pre>";
         die(print_r($card));
-    }
-    else{
+
+    }else{
         echo "NO SE PUDO REALIZAR EL PAGO";
+        echo "<pre>";
+        die(print_r($payment->error));
+        
     }
 
     // Se obtiene el estado del pago
